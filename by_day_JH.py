@@ -85,10 +85,27 @@ out_fp = '{}ByCountryFrom{}thCaseDay'.format(metric.title(),
 df = munge_csv(fp, metric, cases_over[metric])
 country_list = df.columns
 country_count = len(country_list)
+color = plt.cm.Dark2(np.linspace(0, 1, country_count))
 dct = count_from_day_x(df, country_list)
 from_case_start = counts_to_df(dct, country_list, out_fp)
 (x, y) = small_mult_size(country_count)
 plot_mults(country_list, from_case_start, country_count, x, y, metric)
+
+# Plot just UK
+country = "United Kingdom"
+just_uk = [i for i in from_case_start[country] if i > 0]
+base = np.linspace(0, len(just_uk))
+double_in = lambda k: [just_uk[0] * (2 ** (i/k)) for i in base]
+fig, ax = plt.subplots(1, 1)
+ax.plot(base, double_in(3), '--', label="2x every three days", c='0.1')
+ax.plot(base, double_in(7), '--', label="2x every week", c='0.4')
+ax.plot(base, double_in(14), '--', label="2x every fortnight", c='0.7')
+ax.plot(just_uk, linewidth=3, label=country, c='#ee2a24')
+ax.set_title('{} in {}'.format(metric.title(), country))
+plt.xlabel('Days since {} {} confirmed'.format(day_start_cases, metric))
+plt.legend()
+plt.savefig('Outputs\\{}In{}From{}thCaseDay.png'.format(metric.title(),
+            country.replace(' ', ''), day_start_cases))
 
 # Use previous country list, plot confirmed
 metric = 'confirmed'
@@ -99,15 +116,6 @@ dct = count_from_day_x(df, country_list)
 from_case_start = counts_to_df(dct, country_list, out_fp)
 (x, y) = small_mult_size(country_count)
 plot_mults(country_list, from_case_start, country_count, x, y, metric)
-
-
-base = np.linspace(0, len(from_case_start))
-double_in = lambda k: [100 * (2 ** (i/k)) for i in base]
-plt.plot(base, double_in(3), label="Three days")
-plt.plot(base, double_in(7), label="Week")
-plt.plot(base, double_in(14), label="Two weeks")
-plt.yscale("log")
-plt.legend()
 
 # Should get whole df, then filter on deaths, then get country list. Then
 # store country list, and use it for both filters and plots
