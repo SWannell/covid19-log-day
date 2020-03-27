@@ -99,3 +99,15 @@ dct = count_from_day_x(df, country_list)
 from_case_start = counts_to_df(dct, country_list, out_fp)
 (x, y) = small_mult_size(country_count)
 plot_mults(country_list, from_case_start, country_count, x, y, metric)
+
+
+base = np.linspace(0, len(from_case_start))
+double_in = lambda k: [100 * (2 ** (i/k)) for i in base]
+plt.plot(base, double_in(3), label="Three days")
+plt.plot(base, double_in(7), label="Week")
+plt.plot(base, double_in(14), label="Two weeks")
+plt.yscale("log")
+plt.legend()
+
+# Should get whole df, then filter on deaths, then get country list. Then
+# store country list, and use it for both filters and plots
